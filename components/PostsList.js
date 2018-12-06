@@ -7,7 +7,8 @@ import {
   Text,
   TouchableOpacity,
   View,
-  SafeAreaView
+  SafeAreaView,
+  FlatList
 } from "react-native";
 import Post from "./Post";
 import Comment from "./Comment";
@@ -19,14 +20,16 @@ export default class PostsList extends React.Component {
 
   display_posts = () => {
     if (this.props.posts.length > 0) {
-      return this.props.posts.map(post => (
-        <Post
-          handle_change_route={this.props.handle_change_route}
-          post={post}
-          user={post.user}
-          key={post.id}
-        />
-      ));
+      return this.props.posts.map(post => ({
+        key: (
+          <Post
+            handle_change_route={this.props.handle_change_route}
+            post={post}
+            user={post.user}
+            key={post.id}
+          />
+        )
+      }));
     } else {
       return (
         <View style={styles.loading}>
@@ -53,8 +56,12 @@ export default class PostsList extends React.Component {
   render() {
     return (
       <View>
-        {this.display_posts()}
-        {this.props.comments && this.display_comments()}
+        <FlatList
+          data={this.display_posts()}
+          renderItem={({ item }) => item.key}
+        />
+        {/* {this.display_posts()} */}
+        {/* {this.props.comments && this.display_comments()} */}
       </View>
     );
   }

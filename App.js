@@ -63,7 +63,7 @@ export default class App extends React.Component {
       },
       () => {
         console.log("Saved tokens");
-        console.log(this.state);
+        // console.log(this.state);
       }
     );
   };
@@ -102,7 +102,7 @@ export default class App extends React.Component {
     })
       .then(res => res.json())
       .then(response => {
-        console.log(response);
+        // console.log(response);
         if (response.login === true) {
           console.log("Logged In User");
           this.saveTokens(
@@ -183,7 +183,11 @@ export default class App extends React.Component {
           <View style={styles.container}>
             <>
               {Platform.OS === "ios" && <StatusBar barStyle="default" />}
-              <AppNavigator />
+              {/* screenprops now available to all screens via this.props.screenProps
+              https://stackoverflow.com/questions/46264767/react-navigation-pass-props-in-tabnavigator */}
+              <AppNavigator
+                screenProps={{ accessToken: this.state.accessToken }}
+              />
             </>
           </View>
         </LoginScreen>
