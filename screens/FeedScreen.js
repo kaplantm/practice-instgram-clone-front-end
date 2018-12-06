@@ -7,13 +7,14 @@ import {
   Text,
   TouchableOpacity,
   View,
-  SafeAreaView
+  SafeAreaView,
+  RefreshControl,
+  AsyncStorage
 } from "react-native";
 import { WebBrowser } from "expo";
 
 import { MonoText } from "../components/StyledText";
 import Header from "../components/Header";
-// import Post from "../components/Post";
 import PostsList from "../components/PostsList";
 
 export default class FeedScreen extends React.Component {
@@ -25,18 +26,26 @@ export default class FeedScreen extends React.Component {
       isLoadingComplete: false,
       route_type: "recent_posts",
       route_url: "posts/?sort=createdAt&include=user",
-      posts: []
+      posts: [],
+      refreshing: false
     };
   }
   static navigationOptions = {
     header: null
   };
 
+  _onRefresh = () => {
+    this.setState({ refreshing: true });
+    this.fetchData().then(() => {
+      this.setState({ refreshing: false });
+    });
+  };
+
   componentDidMount() {
     this.handle_change_route(this.state.route_type);
   }
   handle_change_route = (route_type, userId, postId) => {
-    console.log(route_type, userId, postId);
+    console.log("Changing feed route: ", route_type, userId, postId);
     let new_route = (route_type => {
       switch (route_type) {
         case "one_post":
@@ -49,22 +58,34 @@ export default class FeedScreen extends React.Component {
     })(route_type);
     this.setState(
       { route_url: new_route, route_type: route_type },
-      this.fetch_data
+      this.fetchData
     );
   };
 
-  fetch_data() {
-    fetch(this.BASE_URL + this.state.route_url)
+  async fetchData() {
+    let token = await AsyncStorage.getItem("accessToken");
+    let refresh = await AsyncStorage.getItem("refreshToken");
+    console.log(token, refresh);
+    let bearer = "Bearer " + token;
+    console.log("fetchData ", bearer);
+    fetch(this.BASE_URL + this.state.route_url, {
+      method: "GET",
+      withCredentials: true,
+      credentials: "include",
+      headers: {
+        Authorization: bearer
+      }
+    })
       .then(results => {
         if (results.status !== 200) {
+          console.log(results.status);
           throw new Error(" No posts found.");
         }
-
+        console.log("Loaded feed");
         return results.json();
       })
       .then(data => {
         let post_data = Array.isArray(data) ? data : [data];
-        // console.log(post_data);
         this.setState({ posts: post_data });
       })
       .catch(err => {
@@ -77,8 +98,14 @@ export default class FeedScreen extends React.Component {
     return (
       <SafeAreaView style={styles.container}>
         <Header handle_change_route={this.handle_change_route} />
-        <ScrollView style={styles.container}>
-          {/* <Post /> */}
+        <ScrollView
+          refreshControl={
+            <RefreshControl
+              refreshing={this.state.refreshing}
+              onRefresh={this._onRefresh}
+            />
+          }
+        >
           <PostsList
             handle_change_route={this.handle_change_route}
             route_url={this.state.route_url}

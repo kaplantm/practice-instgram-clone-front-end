@@ -20,7 +20,8 @@ export default class LoginScreen extends React.Component {
     this.state = {
       email: "",
       password: "",
-      failedLogin: false
+      loginAttempt: false,
+      loginSucess: false
     };
   }
   static navigationOptions = {
@@ -30,70 +31,65 @@ export default class LoginScreen extends React.Component {
   componentDidMount() {
     // this.handle_change_route(this.state.route_type);
   }
-  onClickListener = viewId => {
-    // Default options are marked with *
-    // let url = "http://swapi.co/api/people/1/";
-    let url = "http://tkaplan101518.local:4000/api/users/login";
 
-    fetch(url, {
-      method: "POST", // or 'PUT'
-      body: JSON.stringify({}), // data can be `string` or {object}!
-      headers: {
-        "Content-Type": "application/json"
-      }
-    })
-      .then(res => res.json())
-      .then(response => {
-        if (response.login === true) {
-          this.props.onLoginAttempt("isLoggedIn", true);
-        } else {
-          this.setState({ failedLogin: true });
-        }
-      })
-      .catch(error => this.setState({ failedLogin: true }));
+  handleLogin = async () => {
+    let login = await this.props.userLogin({
+      email: this.state.email,
+      password: this.state.password
+    });
+
+    this.setState({ loginAttempt: true, loginSucess: login });
   };
+
   //TODO: MOVE HEADER COMPONENT SOMEWHERE ELSE TO ABOVE EVERYTHING (SO ON ALL PAGES)
   // maybe not? I'd have to move state up. Not worth it till add redux
   render() {
-    return (
-      <SafeAreaView style={styles.container}>
-        <KeyboardAvoidingView
-          style={styles.container}
-          behavior="padding"
-          enabled
-        >
-          <Header />
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.inputs}
-              placeholder="Email"
-              keyboardType="email-address"
-              onChangeText={email => this.setState({ email })}
-            />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.inputs}
-              placeholder="Password"
-              secureTextEntry={true}
-              onChangeText={password => this.setState({ password })}
-            />
-          </View>
-
-          <TouchableOpacity
-            style={[styles.buttonContainer, styles.loginButton]}
-            onPress={() => this.onClickListener("login")}
+    if (this.props.loginState) {
+      return this.props.children;
+    } else {
+      return (
+        <SafeAreaView style={styles.container}>
+          <KeyboardAvoidingView
+            style={styles.container}
+            behavior="padding"
+            enabled
           >
-            <Text style={styles.loginText}>Login</Text>
-          </TouchableOpacity>
+            <Header />
+            <View style={styles.inputContainer}>
+              <TextInput
+                style={styles.inputs}
+                placeholder="Email"
+                keyboardType="email-address"
+                onChangeText={email => this.setState({ email })}
+              />
+            </View>
 
-          {/* {this.state.failedLogin && <Text>Failed to login.</Text>} */}
+            <View style={styles.inputContainer}>
+              <TextInput
+                style={styles.inputs}
+                placeholder="Password"
+                secureTextEntry={true}
+                onChangeText={password => this.setState({ password })}
+              />
+            </View>
 
-          {/* //TODO: Add register and forgot password buttons */}
-        </KeyboardAvoidingView>
-      </SafeAreaView>
-    );
+            <TouchableOpacity
+              style={[styles.buttonContainer, styles.loginButton]}
+              onPress={this.handleLogin}
+            >
+              <Text style={styles.loginText}>Login</Text>
+            </TouchableOpacity>
+
+            {/* TODO: have this popup for a couple seconds then fade */}
+            {this.state.loginAttempt && !this.state.loginSucess && (
+              <Text>Failed to login.</Text>
+            )}
+
+            {/* //TODO: Add register and forgot password buttons */}
+          </KeyboardAvoidingView>
+        </SafeAreaView>
+      );
+    }
   }
 }
 
