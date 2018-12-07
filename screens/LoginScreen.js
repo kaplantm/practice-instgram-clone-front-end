@@ -12,7 +12,6 @@ import { WebBrowser } from "expo";
 
 import { MonoText } from "../components/StyledText";
 import Header from "../components/Header";
-// import Post from "../components/Post";
 
 export default class LoginScreen extends React.Component {
   constructor(props) {
@@ -28,10 +27,6 @@ export default class LoginScreen extends React.Component {
     header: null
   };
 
-  componentDidMount() {
-    // this.handle_change_route(this.state.route_type);
-  }
-
   handleLogin = async () => {
     let login = await this.props.userLogin({
       email: this.state.email,
@@ -41,8 +36,6 @@ export default class LoginScreen extends React.Component {
     this.setState({ loginAttempt: true, loginSucess: login });
   };
 
-  //TODO: MOVE HEADER COMPONENT SOMEWHERE ELSE TO ABOVE EVERYTHING (SO ON ALL PAGES)
-  // maybe not? I'd have to move state up. Not worth it till add redux
   render() {
     if (this.props.loginState) {
       return this.props.children;

@@ -24,11 +24,6 @@ export default class App extends React.Component {
     };
   }
   componentDidMount = async () => {
-    // AsyncStorage.clear();
-
-    // this.saveTokens();
-    // this.refresh_token();
-
     refreshToken = await this.retrieveItem("refreshToken");
     this.setState({ refreshToken: refreshToken }, this.refresh_token);
     setInterval(this.refresh_token, 900000);
@@ -63,7 +58,6 @@ export default class App extends React.Component {
       },
       () => {
         console.log("Saved tokens");
-        // console.log(this.state);
       }
     );
   };
@@ -80,8 +74,6 @@ export default class App extends React.Component {
     try {
       const value = await AsyncStorage.getItem(item);
       if (value !== null) {
-        // We have data!!
-        // console.log(value);
         return value;
       } else {
         return null;
@@ -94,7 +86,7 @@ export default class App extends React.Component {
 
   authorize_user = async body => {
     return await fetch("http://tkaplan101518.local:4000/api/users/login", {
-      method: "POST", // or 'PUT'
+      method: "POST",
       body: JSON.stringify(body),
       headers: {
         "Content-Type": "application/json"
@@ -102,7 +94,6 @@ export default class App extends React.Component {
     })
       .then(res => res.json())
       .then(response => {
-        // console.log(response);
         if (response.login === true) {
           console.log("Logged In User");
           this.saveTokens(
@@ -127,7 +118,7 @@ export default class App extends React.Component {
 
   refresh_token = async () => {
     return await fetch("http://tkaplan101518.local:4000/api/tokens", {
-      method: "POST", // or 'PUT'
+      method: "POST",
       body: JSON.stringify({
         id: this.state.user.id,
         email: this.state.user.email,
@@ -201,10 +192,7 @@ export default class App extends React.Component {
       Asset.loadAsync([require("./assets/images/logo_camera.png")]),
       Font.loadAsync({
         // This is the font that we are using for our tab bar
-        ...Icon.Ionicons.font,
-        // We include SpaceMono because we use it in HomeScreen.js. Feel free
-        // to remove this if you are not using it in your app
-        "space-mono": require("./assets/fonts/SpaceMono-Regular.ttf")
+        ...Icon.Ionicons.font
       })
     ]);
   };
