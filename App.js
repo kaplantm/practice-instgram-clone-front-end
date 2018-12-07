@@ -31,7 +31,7 @@ export default class App extends React.Component {
 
     refreshToken = await this.retrieveItem("refreshToken");
     this.setState({ refreshToken: refreshToken }, this.refresh_token);
-    setInterval(this.refresh_token, 24000);
+    setInterval(this.refresh_token, 900000);
   };
 
   saveTokens = async (

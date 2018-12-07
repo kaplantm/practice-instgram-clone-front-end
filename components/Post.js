@@ -124,5 +124,9 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     borderTopLeftRadius: 1,
     borderTopRightRadius: 1
+  },
+  caption: {
+    width: "80%",
+    margin: 10
   }
 });
